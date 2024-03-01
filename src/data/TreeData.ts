@@ -88,6 +88,6 @@ export class TreeData {
                 addValueCondition: true,
             },
         ]
-        return rawData.map(p => plainToInstance(TreeNode, p) as TNode)
+        return rawData.map(p => plainToInstance(TreeNode, p) as TNode);
     }
 }
