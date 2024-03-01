@@ -26,12 +26,14 @@ export class TreeWalker {
           this.tree[index].children = this.getEveryChild(node.id);
         }
     );
+    this.bfs_order = this.get_bfs_order()
   }
 
   getEveryChild(parentId) :TNode[] {
     return this.tree.filter(node => {return node.parentId == parentId}).map(child => {
       return new TNode (child)
-    })
+    }).sort((a,b) => {if (a.id < b.id) return 1;
+    else if (a.id==b.id) return 0; return -1})
   }
 
   getNodeById(id: number) {
@@ -58,38 +60,17 @@ export class TreeWalker {
   async reverseWalk(): Promise<void> {
     const vertexAmount = this.tree.length;
     const visitedIds: Set<number> = new Set();
-
-    while (visitedIds.size != vertexAmount) {
-      let leafs_indexes = [];
-      this.tree.forEach(
-          (node, index) =>
-          {
-            if (!(index in visitedIds)) {
-
-
-            let child_ids = new Set(node.children.map(node => node.id));
-            let is_leaf = true;
-            child_ids.forEach((child_id) =>{
-              if (!(visitedIds.has(child_id)) || index in visitedIds ){
-                is_leaf = false;
-                }
-              })
-              if (is_leaf) {
-                leafs_indexes.push(index);
-                console.log(index)
-              }
-
-        leafs_indexes.forEach(idx => {
-          this.handler.handleNode(this.tree[idx]);
-          visitedIds.add(idx);
-          })
-          // console.log(`add vertex ${idx}`);
-          // console.log(visitedIds)
-          //await sleep(1000);
-        }
-        })
-     }
+    while (this.bfs_order.length) {
+      const leaf_id = this.bfs_order.pop()
+      let node = this.getNodeById(leaf_id);
+      let parent = null;
+      if (node.parentId) {
+        parent = this.getNodeById(node.parentId);
+      }
+      this.handler.handleNode(node, parent);
     }
+
+  }
 
 
   pprint(): void {

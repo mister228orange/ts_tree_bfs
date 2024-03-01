@@ -8,8 +8,6 @@ export class NodeHandler implements ITreeNodeHandler<TNode> {
 
         let childrenSum = 0;
 
-        console.log(`node id ${node.id} childrens ${node.children.length}`)
-        //console.log(node)
         if (node.children) {
             childrenSum = node.children.reduce((sum, elem) => sum + elem.valueToParent, 0);
         }
@@ -17,7 +15,8 @@ export class NodeHandler implements ITreeNodeHandler<TNode> {
             node.value = childrenSum;
         } else if (parent) {
             node.valueToParent += childrenSum;
+            parent.children.filter(vert=> vert.id == node.id)[0].valueToParent += childrenSum;
         }
-        //console.log(node)
+        //
     }
   }
