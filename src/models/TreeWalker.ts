@@ -8,7 +8,6 @@ export class TreeWalker {
   private root: TNode;
   private id_pos_mapping: {};
   private bfs_order: number[];
-  private children: number[];
 
 
   constructor(treeData: TreeNode[]) {
@@ -20,8 +19,19 @@ export class TreeWalker {
     this.root = this.tree.find((node) => !node.hasOwnProperty("parentId"));
     this.root.layer = 0;
     this.id_pos_mapping = {};
-    this.tree.forEach((node, index) => {this.id_pos_mapping[node.id] = index});
-    this.bfs_order = this.get_bfs_order();
+    this.tree.forEach(
+        (node, index) =>
+        {
+          this.id_pos_mapping[node.id] = index;
+          this.tree[index].children = this.getEveryChild(node.id);
+        }
+    );
+  }
+
+  getEveryChild(parentId) :TNode[] {
+    return this.tree.filter(node => {return node.parentId == parentId}).map(child => {
+      return new TNode (child)
+    })
   }
 
   getNodeById(id: number) {
@@ -49,14 +59,37 @@ export class TreeWalker {
     const vertexAmount = this.tree.length;
     const visitedIds: Set<number> = new Set();
 
-    for (let i = 0; i < vertexAmount; i++) {
-      let lastVertexId = this.bfs_order.pop();
-      if (!(lastVertexId  in visitedIds)) {
-        await this.handler.handleNode(this.getNodeById(lastVertexId));
-      }
-      visitedIds.add(lastVertexId);
+    while (visitedIds.size != vertexAmount) {
+      let leafs_indexes = [];
+      this.tree.forEach(
+          (node, index) =>
+          {
+            if (!(index in visitedIds)) {
+
+
+            let child_ids = new Set(node.children.map(node => node.id));
+            let is_leaf = true;
+            child_ids.forEach((child_id) =>{
+              if (!(visitedIds.has(child_id)) || index in visitedIds ){
+                is_leaf = false;
+                }
+              })
+              if (is_leaf) {
+                leafs_indexes.push(index);
+                console.log(index)
+              }
+
+        leafs_indexes.forEach(idx => {
+          this.handler.handleNode(this.tree[idx]);
+          visitedIds.add(idx);
+          })
+          // console.log(`add vertex ${idx}`);
+          // console.log(visitedIds)
+          //await sleep(1000);
+        }
+        })
+     }
     }
-  }
 
 
   pprint(): void {
@@ -68,7 +101,6 @@ export class TreeWalker {
       if (node.children) {
         node.children.forEach(child => {
           stack.push(child.id);
-          console.log(child);
         })
       }
     }

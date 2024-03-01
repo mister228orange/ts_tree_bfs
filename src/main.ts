@@ -18,5 +18,5 @@ treeWalker.pprint();
 
 // Выполняем обход и обработку
 const walkPromise = treeWalker.reverseWalk();
-
+Promise.all([walkPromise])
 treeWalker.pprint()

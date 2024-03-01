@@ -7,8 +7,9 @@ export class NodeHandler implements ITreeNodeHandler<TNode> {
     async handleNode(node: TreeNode, parent: TreeNode | null): Promise<void> {
 
         let childrenSum = 0;
-        console.log(node);
 
+        console.log(`node id ${node.id} childrens ${node.children.length}`)
+        //console.log(node)
         if (node.children) {
             childrenSum = node.children.reduce((sum, elem) => sum + elem.valueToParent, 0);
         }
@@ -17,5 +18,6 @@ export class NodeHandler implements ITreeNodeHandler<TNode> {
         } else if (parent) {
             node.valueToParent += childrenSum;
         }
+        //console.log(node)
     }
   }
